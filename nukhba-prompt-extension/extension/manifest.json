@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "NukhbaPrompt",
+  "version": "0.1.0",
+  "description": "Optimize prompts inline inside ChatGPT and Claude.",
+  "permissions": ["storage"],
+  "host_permissions": ["https://openrouter.ai/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "options_page": "options.html",
+  "action": {
+    "default_title": "NukhbaPrompt Settings"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://chatgpt.com/*",
+        "https://chat.openai.com/*",
+        "https://claude.ai/*"
+      ],
+      "js": ["utils/constants.js", "utils/dom.js", "content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle"
+    }
+  ]
+}

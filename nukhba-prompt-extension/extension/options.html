@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>NukhbaPrompt Settings</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body class="nukhba-options-body">
+    <main class="nukhba-options-page">
+      <section class="nukhba-options-card">
+        <div class="nukhba-options-hero">
+          <p class="nukhba-options-kicker">NukhbaPrompt</p>
+          <h1>Optimize prompts where you already work</h1>
+          <p class="nukhba-options-copy">
+            Configure OpenRouter access, choose the model, and adjust the inline button label without changing the extension code.
+          </p>
+        </div>
+
+        <form id="settings-form" class="nukhba-options-form">
+          <label class="nukhba-field">
+            <span>OpenRouter API key</span>
+            <input
+              id="openrouterApiKey"
+              name="openrouterApiKey"
+              type="password"
+              autocomplete="off"
+              placeholder="sk-or-v1-..."
+              required
+            >
+          </label>
+
+          <label class="nukhba-field">
+            <span>OpenRouter model</span>
+            <input
+              id="openrouterModel"
+              name="openrouterModel"
+              type="text"
+              placeholder="mistralai/mistral-7b-instruct:free"
+              required
+            >
+          </label>
+
+          <label class="nukhba-field">
+            <span>Button label</span>
+            <input
+              id="buttonLabel"
+              name="buttonLabel"
+              type="text"
+              maxlength="24"
+              placeholder="Optimize"
+            >
+          </label>
+
+          <label class="nukhba-field">
+            <span>System prompt</span>
+            <textarea
+              id="systemPrompt"
+              name="systemPrompt"
+              rows="12"
+              required
+            ></textarea>
+          </label>
+
+          <div class="nukhba-options-actions">
+            <button class="nukhba-primary-button" type="submit">Save settings</button>
+            <button class="nukhba-secondary-button" type="button" id="reset-defaults">Restore defaults</button>
+          </div>
+
+          <p id="status" class="nukhba-options-status" aria-live="polite"></p>
+        </form>
+      </section>
+    </main>
+
+    <script src="utils/constants.js"></script>
+    <script src="utils/storage.js"></script>
+    <script src="options.js"></script>
+  </body>
+</html>

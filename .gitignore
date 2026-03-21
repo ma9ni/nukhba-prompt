@@ -1,0 +1,17 @@
+.DS_Store
+Thumbs.db
+
+.idea/
+*.iml
+
+node_modules/
+dist/
+build/
+coverage/
+
+*.log
+*.tmp
+*.swp
+
+extension.zip
+*.zip
