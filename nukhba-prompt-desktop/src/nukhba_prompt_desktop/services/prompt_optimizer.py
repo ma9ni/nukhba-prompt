@@ -9,6 +9,11 @@ class PromptOptimizerService:
     ) -> list[dict[str, str]]:
         action_instructions = {
             "optimize": "Rewrite the text to make it clearer, sharper, and more effective.",
+            "enhanced": (
+                "Rewrite the text as a high-quality AI prompt using this structure in order: "
+                "ROLE, OBJECTIF, CONTRAINTES, CONTEXTE, INSTRUCTIONS, EXEMPLES "
+                "(optional only if truly useful), FORMAT DE SORTIE."
+            ),
             "summarize": "Summarize the text into a concise and useful version.",
             "translate": "Translate the text while preserving intent and tone.",
             "reply": "Write a professional reply based on the text.",
@@ -29,11 +34,30 @@ class PromptOptimizerService:
         if settings.rules_text.strip():
             context_parts.append(f"User rules: {settings.rules_text.strip()}")
 
+        enhanced_best_practice = ""
+        if action == "enhanced":
+            enhanced_best_practice = """Enhanced prompt requirements:
+- Transform the source text into a ready-to-use prompt, not an answer
+- Use French section titles exactly as follows:
+  ROLE
+  OBJECTIF
+  CONTRAINTES
+  CONTEXTE
+  INSTRUCTIONS
+  EXEMPLES
+  FORMAT DE SORTIE
+- Keep the best-practice Claude structure and ordering
+- Omit EXEMPLES only if you do not have enough reliable material
+- Make the content concrete, specific, and actionable
+- Add "Si tu n'es pas sûr, dis \"je ne sais pas\"" inside CONTRAINTES when appropriate
+- Return only the final enhanced prompt text"""
+
         user_message = "\n\n".join(
             part
             for part in [
                 f"Requested action: {action}.",
                 action_instructions.get(action, action_instructions["optimize"]),
+                enhanced_best_practice,
                 "\n".join(context_parts).strip(),
                 f"Source text:\n{source_text}",
             ]

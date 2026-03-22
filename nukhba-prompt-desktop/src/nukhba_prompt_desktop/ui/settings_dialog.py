@@ -16,7 +16,11 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from nukhba_prompt_desktop.services.storage_service import AppSettings, DEFAULT_SHORTCUTS
+from nukhba_prompt_desktop.services.storage_service import (
+    ACTION_LABELS,
+    AppSettings,
+    DEFAULT_SHORTCUTS,
+)
 from nukhba_prompt_desktop.utils.errors import ConfigurationError
 
 
@@ -61,11 +65,8 @@ class SettingsDialog(QDialog):
 
         shortcuts_group = QGroupBox("Shortcuts")
         shortcuts_layout = QFormLayout()
-        shortcuts_layout.addRow("Optimize", self._shortcut_inputs["optimize"])
-        shortcuts_layout.addRow("Summarize", self._shortcut_inputs["summarize"])
-        shortcuts_layout.addRow("Translate", self._shortcut_inputs["translate"])
-        shortcuts_layout.addRow("Reply", self._shortcut_inputs["reply"])
-        shortcuts_layout.addRow("Grammar fix", self._shortcut_inputs["grammar"])
+        for action, label in ACTION_LABELS.items():
+            shortcuts_layout.addRow(label, self._shortcut_inputs[action])
         shortcuts_group.setLayout(shortcuts_layout)
 
         profile_group = QGroupBox("Profile and Context")

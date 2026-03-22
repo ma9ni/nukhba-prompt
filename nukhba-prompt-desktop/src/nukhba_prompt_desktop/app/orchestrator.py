@@ -11,7 +11,11 @@ from nukhba_prompt_desktop.services.openrouter_service import OpenRouterService
 from nukhba_prompt_desktop.services.paste_service import PasteService
 from nukhba_prompt_desktop.services.prompt_optimizer import PromptOptimizerService
 from nukhba_prompt_desktop.services.shortcut_service import ShortcutService
-from nukhba_prompt_desktop.services.storage_service import AppSettings, StorageService
+from nukhba_prompt_desktop.services.storage_service import (
+    ACTION_LABELS,
+    AppSettings,
+    StorageService,
+)
 from nukhba_prompt_desktop.ui.settings_dialog import SettingsDialog
 from nukhba_prompt_desktop.utils.errors import (
     ClipboardError,
@@ -187,11 +191,4 @@ class AppOrchestrator(QObject):
 
     @staticmethod
     def _action_label(action: str) -> str:
-        labels = {
-            "optimize": "Optimize",
-            "summarize": "Summarize",
-            "translate": "Translate",
-            "reply": "Reply",
-            "grammar": "Grammar fix",
-        }
-        return labels.get(action, "Action")
+        return ACTION_LABELS.get(action, "Action")

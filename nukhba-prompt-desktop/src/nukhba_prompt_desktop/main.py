@@ -21,8 +21,8 @@ from nukhba_prompt_desktop.utils.logger import setup_logger
 
 def main() -> int:
     project_root = Path(__file__).resolve().parents[2]
-    load_dotenv(project_root / ".env")
-    load_dotenv(Path.cwd() / ".env")
+    load_dotenv(Path.cwd() / ".env", override=True)
+    load_dotenv(project_root / ".env", override=True)
     logger = setup_logger()
 
     app = QApplication(sys.argv)
@@ -52,6 +52,7 @@ def main() -> int:
 
     tray = create_tray(
         on_optimize=lambda: orchestrator.trigger_optimization("optimize"),
+        on_enhanced=lambda: orchestrator.trigger_optimization("enhanced"),
         on_summarize=lambda: orchestrator.trigger_optimization("summarize"),
         on_translate=lambda: orchestrator.trigger_optimization("translate"),
         on_reply=lambda: orchestrator.trigger_optimization("reply"),

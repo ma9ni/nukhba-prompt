@@ -6,6 +6,7 @@ from PySide6.QtWidgets import QApplication, QMenu, QStyle, QSystemTrayIcon
 
 def create_tray(
     on_optimize,
+    on_enhanced,
     on_summarize,
     on_translate,
     on_reply,
@@ -24,6 +25,10 @@ def create_tray(
     optimize_action = QAction("Optimize Clipboard")
     optimize_action.triggered.connect(on_optimize)
     menu.addAction(optimize_action)
+
+    enhanced_action = QAction("Enhanced Prompt")
+    enhanced_action.triggered.connect(on_enhanced)
+    menu.addAction(enhanced_action)
 
     summarize_action = QAction("Summarize Clipboard")
     summarize_action.triggered.connect(on_summarize)

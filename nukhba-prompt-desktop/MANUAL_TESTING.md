@@ -22,7 +22,7 @@
 3. Enter:
    - OpenRouter API key
    - model
-   - shortcut
+   - shortcuts
    - system prompt
 4. Save and confirm you see a success notification.
 
@@ -31,9 +31,18 @@
 1. Open any desktop text app such as Notepad, Teams, Outlook, or Word.
 2. Write a short prompt or rough instruction.
 3. Copy the text.
-4. Press `Ctrl+Shift+O`.
+4. Press `Ctrl+Shift+0`.
 5. Wait for the success notification.
 6. Paste and confirm the clipboard now contains the optimized version.
+
+Default shortcuts:
+
+- `Ctrl+Shift+0` Optimize
+- `Ctrl+Shift+1` Enhanced prompt
+- `Ctrl+Shift+2` Summarize
+- `Ctrl+Shift+3` Translate
+- `Ctrl+Shift+4` Reply
+- `Ctrl+Shift+5` Grammar fix
 
 ## Error Cases
 

@@ -1,6 +1,6 @@
 # NukhbaPrompt Desktop
 
-NukhbaPrompt Desktop is a lightweight Python utility that optimizes clipboard text with a global shortcut.
+NukhbaPrompt Desktop is a lightweight Python utility that transforms clipboard text with global shortcuts for multiple actions such as optimize, enhanced prompt shaping, summarize, translate, reply, and grammar fix.
 
 It is designed for desktop applications where browser extensions cannot run, such as Microsoft Teams Desktop, Outlook Desktop, Word, and Notepad.
 
@@ -84,7 +84,7 @@ nukhba-prompt-desktop/
 4. Open the tray menu and configure:
    - OpenRouter API key
    - model
-   - shortcut
+   - shortcuts
    - system prompt
 
 ## Settings Persistence

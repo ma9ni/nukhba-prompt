@@ -23,7 +23,25 @@ Rules:
 - If the original text is already good, improve it slightly without overcomplicating it
 """
 
+ACTION_LABELS = {
+    "optimize": "Optimize",
+    "enhanced": "Enhanced",
+    "summarize": "Summarize",
+    "translate": "Translate",
+    "reply": "Reply",
+    "grammar": "Grammar fix",
+}
+
 DEFAULT_SHORTCUTS = {
+    "optimize": "Ctrl+Shift+0",
+    "enhanced": "Ctrl+Shift+1",
+    "summarize": "Ctrl+Shift+2",
+    "translate": "Ctrl+Shift+3",
+    "reply": "Ctrl+Shift+4",
+    "grammar": "Ctrl+Shift+5",
+}
+
+LEGACY_DEFAULT_SHORTCUTS = {
     "optimize": "Ctrl+Shift+O",
     "summarize": "Ctrl+Shift+S",
     "translate": "Ctrl+Shift+T",
@@ -55,11 +73,13 @@ class AppSettings:
     def from_dict(cls, payload: dict[str, object]) -> "AppSettings":
         data = cls().to_dict()
         data.update({key: value for key, value in payload.items() if key in data})
-        data["shortcuts"] = DEFAULT_SHORTCUTS.copy() | dict(payload.get("shortcuts", {}))
+        data["shortcuts"] = cls._normalize_shortcuts(dict(payload.get("shortcuts", {})))
 
         legacy_shortcut = payload.get("shortcut")
         if isinstance(legacy_shortcut, str) and legacy_shortcut.strip():
-            data["shortcuts"]["optimize"] = legacy_shortcut.strip()
+            data["shortcuts"]["optimize"] = cls._migrate_legacy_shortcut(
+                "optimize", legacy_shortcut.strip()
+            )
 
         notifications_enabled = data.get("notifications_enabled", True)
         if isinstance(notifications_enabled, str):
@@ -67,6 +87,23 @@ class AppSettings:
         data["notifications_enabled"] = bool(notifications_enabled)
 
         return cls(**data)
+
+    @staticmethod
+    def _normalize_shortcuts(shortcuts: dict[str, object]) -> dict[str, str]:
+        normalized = DEFAULT_SHORTCUTS.copy()
+        for action, shortcut in shortcuts.items():
+            if action in normalized and isinstance(shortcut, str) and shortcut.strip():
+                normalized[action] = AppSettings._migrate_legacy_shortcut(
+                    action, shortcut.strip()
+                )
+        return normalized
+
+    @staticmethod
+    def _migrate_legacy_shortcut(action: str, shortcut: str) -> str:
+        legacy_shortcut = LEGACY_DEFAULT_SHORTCUTS.get(action)
+        if legacy_shortcut and shortcut.casefold() == legacy_shortcut.casefold():
+            return DEFAULT_SHORTCUTS[action]
+        return shortcut
 
     def validate(self) -> None:
         if not self.openrouter_model.strip():

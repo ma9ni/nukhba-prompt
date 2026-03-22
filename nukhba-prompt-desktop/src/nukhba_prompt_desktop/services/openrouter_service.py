@@ -42,7 +42,9 @@ class OpenRouterService:
 
         if not response.ok:
             error_message = payload.get("error", {}).get("message") or response.text
-            raise ProviderError(f"OpenRouter error: {error_message}")
+            raise ProviderError(
+                self._build_error_message(response.status_code, str(error_message))
+            )
 
         try:
             content = payload["choices"][0]["message"]["content"]
@@ -52,3 +54,14 @@ class OpenRouterService:
         if not isinstance(content, str) or not content.strip():
             raise ProviderError("OpenRouter returned empty optimization text.")
         return content
+
+    @staticmethod
+    def _build_error_message(status_code: int, error_message: str) -> str:
+        normalized_message = error_message.strip()
+        if status_code == 401 and normalized_message.lower() == "user not found.":
+            return (
+                "OpenRouter authentication failed: the API key was rejected "
+                "(401 User not found). Check that OPENROUTER_API_KEY belongs "
+                "to an active OpenRouter account."
+            )
+        return f"OpenRouter error: {normalized_message}"
