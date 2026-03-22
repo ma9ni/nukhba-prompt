@@ -19,6 +19,8 @@ __pycache__/
 .venv/
 nukhba-prompt-desktop/.env
 nukhba-prompt-desktop/.venv/
+*.egg-info/
+nukhba-prompt-desktop/src/nukhba_prompt_desktop.egg-info/
 
 extension.zip
 *.zip
