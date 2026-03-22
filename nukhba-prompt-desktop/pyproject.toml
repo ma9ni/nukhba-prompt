@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nukhba-prompt-desktop"
+version = "0.1.0"
+description = "Shortcut-first desktop clipboard optimizer for NukhbaPrompt."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "PySide6>=6.8.0",
+  "pynput>=1.7.7",
+  "pyperclip>=1.9.0",
+  "python-dotenv>=1.0.1",
+  "requests>=2.32.3"
+]
+
+[project.optional-dependencies]
+dev = [
+  "pyinstaller>=6.11.0",
+  "pytest>=8.3.3"
+]
+
+[project.scripts]
+nukhba-prompt-desktop = "nukhba_prompt_desktop.main:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

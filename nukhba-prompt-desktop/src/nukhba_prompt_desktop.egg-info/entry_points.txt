@@ -1,0 +1,2 @@
+[console_scripts]
+nukhba-prompt-desktop = nukhba_prompt_desktop.main:main

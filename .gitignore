@@ -12,6 +12,13 @@ coverage/
 *.log
 *.tmp
 *.swp
+__pycache__/
+*.pyc
+*.pyo
+.env
+.venv/
+nukhba-prompt-desktop/.env
+nukhba-prompt-desktop/.venv/
 
 extension.zip
 *.zip
