@@ -6,6 +6,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 
 from nukhba_prompt_desktop.utils.errors import ConfigurationError
+from nukhba_prompt_desktop.utils.paths import get_app_data_dir
 
 
 DEFAULT_SYSTEM_PROMPT = """You are an expert prompt engineer.
@@ -22,22 +23,43 @@ Rules:
 - If the original text is already good, improve it slightly without overcomplicating it
 """
 
+DEFAULT_SHORTCUTS = {
+    "optimize": "Ctrl+Shift+O",
+    "summarize": "Ctrl+Shift+S",
+    "translate": "Ctrl+Shift+T",
+    "reply": "Ctrl+Shift+R",
+    "grammar": "Ctrl+Shift+G",
+}
+
 
 @dataclass(slots=True)
 class AppSettings:
     openrouter_api_key: str = ""
     openrouter_model: str = "mistralai/mistral-7b-instruct:free"
     system_prompt: str = DEFAULT_SYSTEM_PROMPT
-    shortcut: str = "Ctrl+Shift+O"
+    shortcuts: dict[str, str] | None = None
     notifications_enabled: bool = True
+    profile_role: str = ""
+    profile_domains: str = ""
+    preferred_language: str = ""
+    writing_preferences: str = ""
+    additional_context: str = ""
+    rules_text: str = ""
 
     def to_dict(self) -> dict[str, object]:
-        return asdict(self)
+        payload = asdict(self)
+        payload["shortcuts"] = self.shortcuts or DEFAULT_SHORTCUTS.copy()
+        return payload
 
     @classmethod
     def from_dict(cls, payload: dict[str, object]) -> "AppSettings":
         data = cls().to_dict()
         data.update({key: value for key, value in payload.items() if key in data})
+        data["shortcuts"] = DEFAULT_SHORTCUTS.copy() | dict(payload.get("shortcuts", {}))
+
+        legacy_shortcut = payload.get("shortcut")
+        if isinstance(legacy_shortcut, str) and legacy_shortcut.strip():
+            data["shortcuts"]["optimize"] = legacy_shortcut.strip()
 
         notifications_enabled = data.get("notifications_enabled", True)
         if isinstance(notifications_enabled, str):
@@ -51,13 +73,14 @@ class AppSettings:
             raise ConfigurationError("Model name is required.")
         if not self.system_prompt.strip():
             raise ConfigurationError("System prompt is required.")
-        if not self.shortcut.strip():
-            raise ConfigurationError("Shortcut is required.")
+        for action, shortcut in (self.shortcuts or {}).items():
+            if not str(shortcut).strip():
+                raise ConfigurationError(f"Shortcut is required for {action}.")
 
 
 class StorageService:
     def __init__(self, base_dir: Path | None = None) -> None:
-        self._config_dir = base_dir or (Path.home() / ".config" / "nukhba_prompt_desktop")
+        self._config_dir = base_dir or get_app_data_dir()
         self._settings_path = self._config_dir / "settings.json"
 
     @property
@@ -73,12 +96,17 @@ class StorageService:
         env_payload = {
             "openrouter_api_key": os.getenv("OPENROUTER_API_KEY", ""),
             "openrouter_model": os.getenv("OPENROUTER_MODEL", ""),
-            "shortcut": os.getenv("NUKHBAPROMPT_SHORTCUT", ""),
             "notifications_enabled": os.getenv("NUKHBAPROMPT_NOTIFICATIONS", ""),
         }
         for key, value in env_payload.items():
             if value not in {"", None}:
                 data[key] = value
+
+        optimize_shortcut = os.getenv("NUKHBAPROMPT_SHORTCUT", "").strip()
+        if optimize_shortcut:
+            shortcuts = DEFAULT_SHORTCUTS.copy() | dict(data.get("shortcuts", {}))
+            shortcuts["optimize"] = optimize_shortcut
+            data["shortcuts"] = shortcuts
 
         settings = AppSettings.from_dict(data)
         settings.validate()

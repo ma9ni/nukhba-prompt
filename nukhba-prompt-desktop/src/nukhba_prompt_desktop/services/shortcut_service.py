@@ -14,21 +14,25 @@ class ShortcutService:
         self._logger = logger
         self._debounce_seconds = debounce_seconds
         self._listener: keyboard.GlobalHotKeys | None = None
-        self._callback: Callable[[], None] | None = None
+        self._callback: Callable[[str], None] | None = None
         self._last_trigger_at = 0.0
 
-    def register(self, shortcut: str, callback: Callable[[], None]) -> None:
-        sequence = self._to_pynput_sequence(shortcut)
+    def register(self, shortcuts: dict[str, str], callback: Callable[[str], None]) -> None:
         self.unregister()
         self._callback = callback
+        hotkeys: dict[str, Callable[[], None]] = {}
+
+        for action, shortcut in shortcuts.items():
+            sequence = self._to_pynput_sequence(shortcut)
+            hotkeys[sequence] = lambda action_name=action: self._on_trigger(action_name)
 
         try:
-            self._listener = keyboard.GlobalHotKeys({sequence: self._on_trigger})
+            self._listener = keyboard.GlobalHotKeys(hotkeys)
             self._listener.start()
-            self._logger.info("Registered global shortcut %s as %s", shortcut, sequence)
+            self._logger.info("Registered global shortcuts: %s", shortcuts)
         except Exception as exc:
             raise ShortcutRegistrationError(
-                f"Could not register shortcut '{shortcut}'."
+                "Could not register one or more shortcuts."
             ) from exc
 
     def unregister(self) -> None:
@@ -36,10 +40,10 @@ class ShortcutService:
             self._listener.stop()
             self._listener = None
 
-    def update_shortcut(self, shortcut: str, callback: Callable[[], None]) -> None:
-        self.register(shortcut, callback)
+    def update_shortcuts(self, shortcuts: dict[str, str], callback: Callable[[str], None]) -> None:
+        self.register(shortcuts, callback)
 
-    def _on_trigger(self) -> None:
+    def _on_trigger(self, action: str) -> None:
         now = time.monotonic()
         if now - self._last_trigger_at < self._debounce_seconds:
             self._logger.debug("Ignored duplicate shortcut trigger.")
@@ -47,7 +51,7 @@ class ShortcutService:
 
         self._last_trigger_at = now
         if self._callback is not None:
-            self._callback()
+            self._callback(action)
 
     @staticmethod
     def _to_pynput_sequence(shortcut: str) -> str:

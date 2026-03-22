@@ -22,7 +22,7 @@ from nukhba_prompt_desktop.utils.errors import (
 
 
 class AppOrchestrator(QObject):
-    optimization_requested = Signal()
+    optimization_requested = Signal(str)
     show_settings_requested = Signal()
     shutdown_requested = Signal()
     notify_success = Signal(str)
@@ -66,9 +66,10 @@ class AppOrchestrator(QObject):
 
     def start(self) -> None:
         try:
-            self._register_shortcut(self._settings.shortcut)
+            self._register_shortcut(self._settings.shortcuts)
             self.notify_success.emit(
-                f"NukhbaPrompt Desktop is running. Shortcut: {self._settings.shortcut}"
+                "NukhbaPrompt Desktop is running. "
+                f"Optimize shortcut: {self._settings.shortcuts['optimize']}"
             )
         except ShortcutRegistrationError as exc:
             self.notify_error.emit(str(exc))
@@ -76,8 +77,8 @@ class AppOrchestrator(QObject):
     def shutdown(self) -> None:
         self._shortcut_service.unregister()
 
-    def trigger_optimization(self) -> None:
-        self.optimization_requested.emit()
+    def trigger_optimization(self, action: str = "optimize") -> None:
+        self.optimization_requested.emit(action)
 
     def show_settings(self) -> None:
         self._settings_dialog.load_settings(self._settings)
@@ -89,22 +90,22 @@ class AppOrchestrator(QObject):
         try:
             saved = self._storage_service.save_settings(settings)
             self._settings = saved
-            self._register_shortcut(saved.shortcut)
+            self._register_shortcut(saved.shortcuts)
             self.notify_success.emit("Settings saved.")
         except (ConfigurationError, ShortcutRegistrationError) as exc:
             self.notify_error.emit(str(exc))
 
-    def optimize_clipboard(self) -> None:
+    def optimize_clipboard(self, action: str) -> None:
         with self._lock:
             if self._is_running:
                 self.notify_warning.emit("Optimization is already running.")
                 return
             self._is_running = True
 
-        worker = threading.Thread(target=self._run_optimization, daemon=True)
+        worker = threading.Thread(target=self._run_optimization, args=(action,), daemon=True)
         worker.start()
 
-    def _run_optimization(self) -> None:
+    def _run_optimization(self, action: str) -> None:
         try:
             self.notify_progress.emit("Capturing selected text.")
             self._paste_service.copy_selection()
@@ -117,9 +118,11 @@ class AppOrchestrator(QObject):
                     "Clipboard contains app logs, not the target text to optimize."
                 )
                 return
-            self.notify_progress.emit("Waiting for OpenRouter response.")
+            self.notify_progress.emit(
+                f"{self._action_label(action)} in progress. Waiting for OpenRouter response."
+            )
             messages = self._prompt_optimizer.build_messages(
-                clipboard_text, self._settings.system_prompt
+                clipboard_text, self._settings, action
             )
             optimized = self._openrouter_service.optimize(self._settings, messages)
             normalized = self._prompt_optimizer.normalize_response(optimized)
@@ -133,7 +136,8 @@ class AppOrchestrator(QObject):
                 self._build_preview(normalized, 220),
             )
             self.notify_success.emit(
-                "Replaced text: " + self._build_preview(normalized)
+                f"{self._action_label(action)} complete: "
+                + self._build_preview(normalized)
             )
         except ClipboardError as exc:
             self.notify_warning.emit(str(exc))
@@ -146,8 +150,8 @@ class AppOrchestrator(QObject):
             with self._lock:
                 self._is_running = False
 
-    def _register_shortcut(self, shortcut: str) -> None:
-        self._shortcut_service.update_shortcut(shortcut, self.trigger_optimization)
+    def _register_shortcut(self, shortcuts: dict[str, str]) -> None:
+        self._shortcut_service.update_shortcuts(shortcuts, self.trigger_optimization)
 
     def _handle_success_notification(self, message: str) -> None:
         self._notification_service.success(message, self._settings.notifications_enabled)
@@ -180,3 +184,14 @@ class AppOrchestrator(QObject):
         )
         hits = sum(1 for marker in markers if marker in lowered)
         return hits >= 2
+
+    @staticmethod
+    def _action_label(action: str) -> str:
+        labels = {
+            "optimize": "Optimize",
+            "summarize": "Summarize",
+            "translate": "Translate",
+            "reply": "Reply",
+            "grammar": "Grammar fix",
+        }
+        return labels.get(action, "Action")

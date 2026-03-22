@@ -89,9 +89,11 @@ nukhba-prompt-desktop/
 
 ## Settings Persistence
 
-Settings are saved to:
+Settings are saved per platform:
 
-`~/.config/nukhba_prompt_desktop/settings.json`
+- Linux: `~/.config/nukhba_prompt_desktop/settings.json`
+- Windows: `%APPDATA%\\nukhba_prompt_desktop\\settings.json`
+- macOS: `~/Library/Application Support/nukhba_prompt_desktop/settings.json`
 
 The app also reads optional bootstrap values from `.env`.
 
@@ -103,12 +105,21 @@ Notifications are shown through the system tray when supported by the platform. 
 
 See [MANUAL_TESTING.md](/home/ahmed/IdeaProjects/nukhba-prompt/nukhba-prompt-desktop/MANUAL_TESTING.md).
 
+## Cross-Platform Status
+
+Current target support:
+
+- Linux: supported, best on X11
+- Windows: supported for tray, clipboard, and global shortcuts
+- macOS: partially supported, but usually requires Accessibility permissions for global hotkeys and synthetic paste
+
 ## Platform Limitations
 
-- Global hotkeys depend on `pynput`, which may require accessibility permissions on macOS.
-- On Linux, global hotkeys usually require an X11 session; Wayland support can be limited.
-- Clipboard backends depend on the host system. On Linux, `pyperclip` may require `xclip` or `xsel`.
+- Global hotkeys depend on `pynput`, which may require Accessibility permissions on macOS.
+- On Linux, global hotkeys usually require an X11 session; Wayland support can be limited depending on the desktop environment.
+- Clipboard access uses Qt first and falls back to `pyperclip`, which improves cross-platform behavior.
 - Tray notifications depend on desktop-environment support and may vary by platform.
+- Synthetic copy/paste is best effort. Some native applications may block or ignore simulated key events.
 
 ## Next Improvements
 

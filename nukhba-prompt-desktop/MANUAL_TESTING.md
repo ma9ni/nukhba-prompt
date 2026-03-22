@@ -9,6 +9,12 @@
 4. Run:
    `python -m nukhba_prompt_desktop.main`
 
+## Multi-OS Checkpoints
+
+- Linux: verify tray icon appears and global shortcuts work in the target desktop environment.
+- Windows: verify the app writes `settings.json` under `%APPDATA%\\nukhba_prompt_desktop`.
+- macOS: grant Accessibility permissions before testing global shortcut and auto-paste.
+
 ## Settings
 
 1. Open the tray menu.

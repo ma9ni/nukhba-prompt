@@ -51,7 +51,11 @@ def main() -> int:
     )
 
     tray = create_tray(
-        on_optimize=orchestrator.trigger_optimization,
+        on_optimize=lambda: orchestrator.trigger_optimization("optimize"),
+        on_summarize=lambda: orchestrator.trigger_optimization("summarize"),
+        on_translate=lambda: orchestrator.trigger_optimization("translate"),
+        on_reply=lambda: orchestrator.trigger_optimization("reply"),
+        on_grammar=lambda: orchestrator.trigger_optimization("grammar"),
         on_settings=orchestrator.show_settings_requested.emit,
         on_quit=app.quit,
     )

@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import logging
-from pathlib import Path
 
+from nukhba_prompt_desktop.utils.paths import get_app_data_dir
 
 def setup_logger(debug: bool = False) -> logging.Logger:
     logger = logging.getLogger("nukhba_prompt_desktop")
@@ -21,7 +21,7 @@ def setup_logger(debug: bool = False) -> logging.Logger:
     stream_handler.setFormatter(formatter)
     logger.addHandler(stream_handler)
 
-    log_dir = Path.home() / ".config" / "nukhba_prompt_desktop"
+    log_dir = get_app_data_dir()
     try:
         log_dir.mkdir(parents=True, exist_ok=True)
         file_handler = logging.FileHandler(log_dir / "app.log", encoding="utf-8")
